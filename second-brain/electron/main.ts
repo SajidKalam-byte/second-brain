@@ -1,31 +1,27 @@
 import { app, BrowserWindow } from 'electron'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
-
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { registerIpcHandlers } from './ipc'
 
-// ESM replacement for __dirname
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __dirname = path.dirname(__filename)
 
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-
+      preload: path.join(__dirname, 'preload.mjs'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   })
 
-  if (process.env.NODE_ENV === 'development') {
-    win.loadURL('http://localhost:5173')
+  if (process.env.VITE_DEV_SERVER_URL) {
+    win.loadURL(process.env.VITE_DEV_SERVER_URL)
     win.webContents.openDevTools()
   } else {
-    win.loadFile(join(__dirname, '../renderer/index.html'))
+    win.loadFile(path.join(__dirname, '../dist/index.html'))
   }
 }
 
